@@ -149,12 +149,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = '/static'
-STATIC_ROOT = '/home/dev/accessone-api/static'
+STATIC_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/static'
 
 
 MEDIA_URL = '/media/'
 # MEDIA_ROOT = '/media'
 # MEDIA_ROOT = '/home/dev/accessone-api/media'
 BASE_DIRR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print(os.path.join(BASE_DIRR,"..","media"))
 MEDIA_ROOT = os.path.join(BASE_DIRR,"..","media")
