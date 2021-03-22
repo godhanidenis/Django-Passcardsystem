@@ -155,5 +155,4 @@ STATIC_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/st
 MEDIA_URL = '/media/'
 # MEDIA_ROOT = '/media'
 # MEDIA_ROOT = '/home/dev/accessone-api/media'
-BASE_DIRR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MEDIA_ROOT = os.path.join(BASE_DIRR,"..","media")
+MEDIA_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/media'
