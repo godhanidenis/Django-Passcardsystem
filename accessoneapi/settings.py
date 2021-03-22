@@ -24,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '*@wfh=dke&kks_v%5d!s=t%1@==lihksg#5uu-wym5)v!k5xay'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', '102.37.42.50', 'connect.s-onedigital.com']
 ALLOWED_HOSTS = ['*']
