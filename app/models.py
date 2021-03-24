@@ -378,9 +378,9 @@ class Visitor(models.Model):
         draw_share = ImageDraw.Draw(canvas_share)
         canvas_share.paste(qrcode_img_share)
         
-        # font = ImageFont.load_default()
+        font = ImageFont.load_default()
         # use a bitmap font
-        font = ImageFont.truetype("/arial.ttf", 14)
+        #font = ImageFont.truetype("arial.ttf", 14)
         
         
 
