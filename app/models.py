@@ -380,7 +380,7 @@ class Visitor(models.Model):
         
         # font = ImageFont.load_default()
         # use a bitmap font
-        font = ImageFont.truetype("/home/dev/accessone-api/app/arial.ttf", 14)
+        font = ImageFont.truetype("/arial.ttf", 14)
         
         
 
