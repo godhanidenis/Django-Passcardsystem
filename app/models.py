@@ -243,6 +243,7 @@ class AppUserAssignedAreas(models.Model):
 class visitorType(models.Model):
     visitor_type = models.CharField(max_length=120, default='')
     user = models.CharField(max_length=120, default='')
+    isPermanent = models.BooleanField(default=False)
     def __str__(self):
         return self.visitor_type
     class Meta:
@@ -256,15 +257,6 @@ class visitorValidity(models.Model):
     class Meta:
         verbose_name = 'Validity'
         verbose_name_plural = 'Validities'
-
-
-
-
-
-
-
-
-
 
 class Status(models.Model):
     name = models.CharField(max_length=120, default='')
@@ -282,6 +274,7 @@ class Resident(models.Model):
         ("REJECTED", "Rejected")
     )
     status = models.CharField(max_length=9, choices=STATUS_CHOICES, default="PENDING")
+    isActive = models.BooleanField(default=True)
     name = models.CharField(max_length=120, default='')
     phone = models.CharField(max_length=120, default='')
     email = models.EmailField(max_length=120, default='')
@@ -313,8 +306,9 @@ class Visitor(models.Model):
     comment = models.TextField(max_length=1200, default='', null=True, blank=True)
     validity_description = models.CharField(max_length=120, default='', null=True, blank=True)
     type = models.ForeignKey(visitorType, null=True, related_name='type', on_delete=models.CASCADE)
-    timedatefrom = models.DateTimeField(null=True)
-    timedateto = models.DateTimeField(null=True)
+    timedatefrom = models.DateTimeField(null=True, blank=True)
+    profile_image = models.ImageField(upload_to='profiles', null=True, blank=True)
+    timedateto = models.DateTimeField(null=True, blank=True)
     registered_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     checkin_date = models.DateTimeField(null=True, blank=True)
     checkout_date = models.DateTimeField(null=True, blank=True)
@@ -409,8 +403,12 @@ class Visitor(models.Model):
         text += '\nVisitor email: ' + self.email
         text += '\nVisitor phone: ' + self.phone
         text += '\nVisitor vehicle /s number: ' + self.vehicle_number
-        text += '\nDate from: ' + str((self.timedatefrom).strftime('%d/%m/%Y %H:%M'))
-        text += '\nDate to: ' + str((self.timedateto).strftime('%d/%m/%Y %H:%M'))
+        if self.timedatefrom :
+            text += '\nDate from: ' + str((self.timedatefrom).strftime('%d/%m/%Y %H:%M'))
+        if self.timedateto:
+            text += '\nDate to: ' + str((self.timedateto).strftime('%d/%m/%Y %H:%M'))
+        
+        
         # text += '\nDate from: ' + str((self.timedatefrom - timedelta(minutes=10)).strftime('%d %Y %H:%m'))
         # text += '\nDate to: ' + str((self.timedateto - timedelta(minutes=10)).strftime('%d %Y %H:%m'))
           
