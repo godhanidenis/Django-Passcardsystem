@@ -7,6 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse
 from django import template
+from django.db.models import Prefetch
 
 from rest_framework import viewsets, generics
 
@@ -114,6 +115,7 @@ class ResidentsByArea(viewsets.ModelViewSet):
         request_area = self.request.query_params.get('area', None)
         someset = Resident.objects.all().filter(residence_area=request_area)
         return someset
+
 
 class ResidentsByAreaF(viewsets.ModelViewSet):
     queryset = Resident.objects.all()
@@ -374,6 +376,15 @@ class visitorValidityViewSet(viewsets.ModelViewSet):
 class VisitorViewSet(viewsets.ModelViewSet):
     queryset = Visitor.objects.all()
     serializer_class = VisitorSerializer
+
+class VisitorsByResident(viewsets.ModelViewSet):
+    queryset = Visitor.objects.all()
+    serializer_class = VisitorSerializer
+
+    def get_queryset(self):
+        push_id = self.request.query_params.get('push_id', None)
+        someset = Visitor.objects.filter(resident__push_id__contains=push_id) 
+        return someset
 
 class StatusViewSet(viewsets.ModelViewSet):
     queryset = Status.objects.all()
