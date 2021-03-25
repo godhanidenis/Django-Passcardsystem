@@ -325,6 +325,8 @@ class Visitor(models.Model):
     checkout_agent = models.ForeignKey(AppUser, null=True, blank=True, related_name='visitor_agent_checkout', on_delete=models.CASCADE)
     qr_code = models.ImageField(upload_to='visitor_qr_codes', blank=True)
     qr_code_share = models.ImageField(upload_to='visitor_qr_codes', blank=True)
+    isPermanent   = models.BooleanField(default=False)
+    isEnable      = models.BooleanField(default=True)
     def __str__(self):
         return self.name
     class Meta:
