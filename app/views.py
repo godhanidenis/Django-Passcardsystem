@@ -133,7 +133,8 @@ class ResidentsByCode(viewsets.ModelViewSet):
 
     def get_queryset(self):
         request_code = self.request.query_params.get('code', None)
-        someset = Resident.objects.all().filter(passcode=request_code)
+        residence_area_code = self.request.query_params.get('area_code', None)
+        someset = Resident.objects.all().filter(passcode=request_code, location=residence_area_code)
         return someset
 
 
