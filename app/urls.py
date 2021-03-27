@@ -56,7 +56,6 @@ urlpatterns = [
     path('api/searchareas/', views.SearchArea.as_view(actions={'get': 'list'})),
     path('api/searchvisitornew/', views.SearchVisitorNew.as_view(actions={'get': 'list'})),
     path('api/visitorsByResident/', views.VisitorsByResident.as_view(actions={'get': 'list'})),
-    path('api/searchvisitornewnew/', views.SearchVisitorNewNew.as_view())
-    
- 
+    path('api/searchvisitornewnew/', views.SearchVisitorNewNew.as_view()),
+    path('api/searchresident/', views.SearchResidents.as_view(actions={'get': 'list'}))
 ]

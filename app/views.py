@@ -161,7 +161,38 @@ class ResidentsByEmailAndPhone(viewsets.ModelViewSet):
         someset = Resident.objects.all().filter(phone=request_phone, email=request_code)[:1]
         return someset
 
+class SearchResidents(viewsets.ModelViewSet):
+    queryset = Resident.objects.all()
+    serializer_class = ResidentSerializer
 
+    def get_queryset(self):
+        someset = []
+
+        request_name  = self.request.query_params.get('name', None)
+        if request_name:
+            someset = Resident.objects.all().filter(name__icontains=request_name)
+
+        request_phone = self.request.query_params.get('phone', None)
+        if request_phone: 
+            someset = Resident.objects.all().filter(phone=request_phone)
+
+        request_address  = self.request.query_params.get('address', None)
+        if request_address :
+            someset = Resident.objects.all().filter(address__icontains=request_address)
+
+        request_area_name  = self.request.query_params.get('area_name', None)
+        if request_area_name:
+            someset = Resident.objects.all().filter(residence_area__area_name__icontains=request_area_name)
+
+        request_block_zone  = self.request.query_params.get('block_zone', None)
+        if request_block_zone : 
+            someset = Resident.objects.all().filter(block_zone__icontains=request_block_zone)
+
+        request_vehicle_number  = self.request.query_params.get('vehicle_number', None)
+        if request_vehicle_number: 
+            someset = Resident.objects.all().filter(vehicle_number__icontains=request_vehicle_number)
+
+        return someset
         
 
 
