@@ -199,26 +199,16 @@ class CheckLoginValidity(APIView):
         # print(next_occurance)
 
         if next_occurance.strftime("%d/%m/%Y") == datetime.now(tz=timezone.utc).strftime("%d/%m/%Y"):
-            print("Same Date")
             if queryset.time_from and queryset.time_to:
                 begin_time = datetime.time(queryset.time_from)
                 end_time   = datetime.time(queryset.time_to)
                 check_time = datetime.utcnow().time()
-                print(begin_time)
-                print(end_time)
-                print(check_time)
                 if begin_time < end_time:
-                    print("begin_time < end_time")
                     isValid =  check_time >= begin_time and check_time <= end_time
-                    print(isValid)
                 else: # crosses midnight
-                    print("crosses midnight")
                     isValid =  check_time >= begin_time or check_time <= end_time
-                    print(isValid)
             else:
                 isValid = True
-        else:
-            print("Not same Date")
 
         return Response({'isValid': isValid})
 
