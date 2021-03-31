@@ -8,7 +8,7 @@ from django.template import loader
 from django.http import HttpResponse
 from django import template
 from django.db.models import Prefetch
-from datetime import timezone
+from django.utils import timezone
 import pytz
 
 from rest_framework import viewsets, generics
@@ -178,40 +178,45 @@ class CheckLoginValidity(APIView):
                 dtstart = pera.split("=")[1]
                 rule_string_perameters.remove(pera)
 
+        
         if dtstart != '':
-            final_rule_string = "DTSTART:" + dtstart['DTSTART'] + ";\n" + "RRULE:" + ";".join(rule_string_perameters)
+            final_rule_string = "DTSTART:" + dtstart + ";\n" + "RRULE:" + ";".join(rule_string_perameters)
+            rule = rrulestr(final_rule_string)
+            launchTime = datetime.now(tz=timezone.utc)
+            next_occurance = rule.after(launchTime, inc=True)
         else:
             final_rule_string =  "RRULE:" + ";".join(rule_string_perameters)
-
-        rule = rrulestr(final_rule_string)
+            rule = rrulestr(final_rule_string)
+            launchTime = datetime.utcnow()
+            next_occurance = rule.after(launchTime, inc=True)
 
         # print("final_rule_string : " + final_rule_string)
         # print("rule :")
         # print(rule)
-
-        utc=pytz.UTC
-        launchTime = datetime.utcnow()
-        next_occurance = rule.after(launchTime, inc=True)
+        
 
         # print("next_occurance :")
         # print(next_occurance)
 
         if next_occurance.strftime("%d/%m/%Y") == datetime.now(tz=timezone.utc).strftime("%d/%m/%Y"):
             print("Same Date")
-            begin_time = datetime.time(queryset.time_from)
-            end_time   = datetime.time(queryset.time_to)
-            check_time = datetime.utcnow().time()
-            print(begin_time)
-            print(end_time)
-            print(check_time)
-            if begin_time < end_time:
-                print("begin_time < end_time")
-                isValid =  check_time >= begin_time and check_time <= end_time
-                print(isValid)
-            else: # crosses midnight
-                print("crosses midnight")
-                isValid =  check_time >= begin_time or check_time <= end_time
-                print(isValid)
+            if queryset.time_from and queryset.time_to:
+                begin_time = datetime.time(queryset.time_from)
+                end_time   = datetime.time(queryset.time_to)
+                check_time = datetime.utcnow().time()
+                print(begin_time)
+                print(end_time)
+                print(check_time)
+                if begin_time < end_time:
+                    print("begin_time < end_time")
+                    isValid =  check_time >= begin_time and check_time <= end_time
+                    print(isValid)
+                else: # crosses midnight
+                    print("crosses midnight")
+                    isValid =  check_time >= begin_time or check_time <= end_time
+                    print(isValid)
+            else:
+                isValid = True
         else:
             print("Not same Date")
 
