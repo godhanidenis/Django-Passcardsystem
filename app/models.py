@@ -288,6 +288,9 @@ class Resident(models.Model):
     number_of_resident = models.IntegerField(null=True)
     passcode = models.CharField(max_length=120, default = random.randint(1000,9999), unique=True, blank=True)
     location = models.CharField(max_length=220, default='', null=True, blank=True)
+    recurrance_str = models.CharField(max_length=220, default='', null=True, blank=True)
+    time_from = models.DateTimeField(null=True, blank=True)
+    time_to = models.DateTimeField(null=True, blank=True)
     residence_area = models.ForeignKey(residenceAreas, null=True, blank=True, related_name='residence_area', on_delete=models.CASCADE)
     def __str__(self):
         return self.name
@@ -308,7 +311,7 @@ class Visitor(models.Model):
     timedatefrom = models.DateTimeField(null=True, blank=True)
     profile_image = models.ImageField(upload_to='profiles', null=True, blank=True)
     timedateto = models.DateTimeField(null=True, blank=True)
-    overrides_note = models.TextField(max_length=1200, default='')
+    overrides_note = models.TextField(max_length=1200, default='',null=True, blank=True)
     registered_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     checkin_date = models.DateTimeField(null=True, blank=True)
     checkout_date = models.DateTimeField(null=True, blank=True)
@@ -327,6 +330,9 @@ class Visitor(models.Model):
     qr_code_share = models.ImageField(upload_to='visitor_qr_codes', blank=True)
     isPermanent   = models.BooleanField(default=False)
     isEnable      = models.BooleanField(default=True)
+    recurrance_str = models.CharField(max_length=220, default='', null=True, blank=True)
+    time_from     = models.DateTimeField(null=True, blank=True)
+    time_to       = models.DateTimeField(null=True, blank=True)
     def __str__(self):
         return self.name
     class Meta:

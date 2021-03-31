@@ -8,6 +8,8 @@ from django.template import loader
 from django.http import HttpResponse
 from django import template
 from django.db.models import Prefetch
+from datetime import timezone
+import pytz
 
 from rest_framework import viewsets, generics
 
@@ -25,6 +27,9 @@ from django.db.models import Q
 from django.db.models import F
 import datetime
 from django.utils.timezone import now
+from dateutil.rrule import rrulestr
+from datetime import datetime
+from rest_framework.views import APIView
 
 class ResidenceViewSet(viewsets.ModelViewSet):
     queryset = Residence.objects.all()
@@ -34,14 +39,9 @@ class ResidenceSyndicsViewSet(viewsets.ModelViewSet):
     queryset = residenceSyndics.objects.all()
     serializer_class = ResidenceSyndicsSerializer
 
-
-
-
 class ResidenceAreasViewSet(viewsets.ModelViewSet):
     queryset = residenceAreas.objects.all()
     serializer_class = ResidenceAreasSerializer
-
-
 
 class ResidenceTypeViewSet(viewsets.ModelViewSet):
     queryset = residenceType.objects.all()
@@ -150,6 +150,73 @@ class ResidentsByEmail(viewsets.ModelViewSet):
         someset = Resident.objects.all().filter(email=request_code)[:1]
         return someset
 
+# class CheckLoginValidity(viewsets.ModelViewSet):
+#     queryset = Resident.objects.all()
+#     serializer_class = ResidentSerializer
+
+#     def get_queryset(self):
+#         push_id = self.request.query_params.get('push_id', None)
+#         someset = Resident.objects.all()
+#         print(someset)
+#         return True
+
+
+class CheckLoginValidity(APIView):
+    def get(self, request):
+
+        push_id = self.request.query_params.get('push_id', None)
+        queryset = Resident.objects.all().filter(push_id=push_id).first()
+        rule_string = queryset.recurrance_str
+
+        isValid = False
+        dtstart = ''
+        str_without_dtstart = ''
+        rule_string_perameters = rule_string.split(";")
+
+        for pera in rule_string_perameters:
+            if pera.split("=")[0] == 'DTSTART':
+                dtstart = pera.split("=")[1]
+                rule_string_perameters.remove(pera)
+
+        if dtstart != '':
+            final_rule_string = "DTSTART:" + dtstart['DTSTART'] + ";\n" + "RRULE:" + ";".join(rule_string_perameters)
+        else:
+            final_rule_string =  "RRULE:" + ";".join(rule_string_perameters)
+
+        rule = rrulestr(final_rule_string)
+
+        # print("final_rule_string : " + final_rule_string)
+        # print("rule :")
+        # print(rule)
+
+        utc=pytz.UTC
+        launchTime = datetime.utcnow()
+        next_occurance = rule.after(launchTime, inc=True)
+
+        # print("next_occurance :")
+        # print(next_occurance)
+
+        if next_occurance.strftime("%d/%m/%Y") == datetime.now(tz=timezone.utc).strftime("%d/%m/%Y"):
+            print("Same Date")
+            begin_time = datetime.time(queryset.time_from)
+            end_time   = datetime.time(queryset.time_to)
+            check_time = datetime.utcnow().time()
+            print(begin_time)
+            print(end_time)
+            print(check_time)
+            if begin_time < end_time:
+                print("begin_time < end_time")
+                isValid =  check_time >= begin_time and check_time <= end_time
+                print(isValid)
+            else: # crosses midnight
+                print("crosses midnight")
+                isValid =  check_time >= begin_time or check_time <= end_time
+                print(isValid)
+        else:
+            print("Not same Date")
+
+        return Response({'isValid': isValid})
+
 
 class ResidentsByEmailAndPhone(viewsets.ModelViewSet):
     queryset = Resident.objects.all()
@@ -171,26 +238,38 @@ class SearchResidents(viewsets.ModelViewSet):
         request_name  = self.request.query_params.get('name', None)
         if request_name:
             someset = Resident.objects.all().filter(name__icontains=request_name)
+            if someset:
+                return someset
 
         request_phone = self.request.query_params.get('phone', None)
         if request_phone: 
             someset = Resident.objects.all().filter(phone=request_phone)
+            if someset:
+                return someset
 
         request_address  = self.request.query_params.get('address', None)
         if request_address :
             someset = Resident.objects.all().filter(address__icontains=request_address)
+            if someset:
+                return someset
 
         request_area_name  = self.request.query_params.get('area_name', None)
         if request_area_name:
             someset = Resident.objects.all().filter(residence_area__area_name__icontains=request_area_name)
+            if someset:
+                return someset
 
         request_block_zone  = self.request.query_params.get('block_zone', None)
         if request_block_zone : 
             someset = Resident.objects.all().filter(block_zone__icontains=request_block_zone)
+            if someset:
+                return someset
 
         request_vehicle_number  = self.request.query_params.get('vehicle_number', None)
         if request_vehicle_number: 
             someset = Resident.objects.all().filter(vehicle_number__icontains=request_vehicle_number)
+            if someset:
+                return someset
 
         return someset
         
