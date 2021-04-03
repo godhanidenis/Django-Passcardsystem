@@ -309,7 +309,7 @@ class Visitor(models.Model):
     validity_description = models.CharField(max_length=120, default='', null=True, blank=True)
     type = models.ForeignKey(visitorType, null=True, related_name='type', on_delete=models.CASCADE)
     timedatefrom = models.DateTimeField(null=True, blank=True)
-    profile_image = models.ImageField(upload_to='profiles', null=True, blank=True)
+    profile_image = models.ImageField(upload_to='profiles',default= '/profiles/profile-placeholder.png', null=True, blank=True)
     timedateto = models.DateTimeField(null=True, blank=True)
     overrides_note = models.TextField(max_length=1200, default='',null=True, blank=True)
     registered_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)

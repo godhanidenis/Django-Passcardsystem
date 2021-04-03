@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'app',
     'rest_framework',
     'corsheaders',
+    'django_crontab'
 ]
 
 MIDDLEWARE = [
@@ -67,6 +68,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CRONJOBS = [
+    ('*/2 * * * *', 'app.cron.my_cron_job')
 ]
 
 ROOT_URLCONF = 'accessoneapi.urls'

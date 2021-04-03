@@ -228,48 +228,16 @@ class SearchResidents(viewsets.ModelViewSet):
     serializer_class = ResidentSerializer
 
     def get_queryset(self):
-        someset = []
-
-        request_name  = self.request.query_params.get('name', None)
-        if request_name:
-            someset = Resident.objects.all().filter(name__icontains=request_name)
-            if someset:
-                return someset
-
-        request_phone = self.request.query_params.get('phone', None)
-        if request_phone: 
-            someset = Resident.objects.all().filter(phone=request_phone)
-            if someset:
-                return someset
-
-        request_address  = self.request.query_params.get('address', None)
-        if request_address :
-            someset = Resident.objects.all().filter(address__icontains=request_address)
-            if someset:
-                return someset
-
-        request_area_name  = self.request.query_params.get('area_name', None)
-        if request_area_name:
-            someset = Resident.objects.all().filter(residence_area__area_name__icontains=request_area_name)
-            if someset:
-                return someset
-
-        request_block_zone  = self.request.query_params.get('block_zone', None)
-        if request_block_zone : 
-            someset = Resident.objects.all().filter(block_zone__icontains=request_block_zone)
-            if someset:
-                return someset
-
-        request_vehicle_number  = self.request.query_params.get('vehicle_number', None)
-        if request_vehicle_number: 
-            someset = Resident.objects.all().filter(vehicle_number__icontains=request_vehicle_number)
-            if someset:
-                return someset
-
+        request_query  = self.request.query_params.get('search', None)
+        someset = Resident.objects.all().filter(
+                                              Q(name__icontains=request_query) 
+                                            | Q(phone__icontains=request_query)
+                                            | Q(address__icontains=request_query) 
+                                            | Q(residence_area__area_name__icontains=request_query) 
+                                            | Q(block_zone__icontains=request_query) 
+                                            | Q(vehicle_number__icontains=request_query) 
+                                            )
         return someset
-        
-
-
 
 class AppUserByAssignedArea(viewsets.ModelViewSet):
     queryset = AppUserAssignedAreas.objects.all()
@@ -307,8 +275,17 @@ class SearchVisitorNew(viewsets.ModelViewSet):
 
     def get_queryset(self):
         request_query = self.request.query_params.get('search', None)
-        request_area = self.request.query_params.get('area', None)
-        someset = Visitor.objects.all().filter(Q(name__icontains=request_query) | Q(resident__name__icontains=request_query)).filter(residence_area=request_area).filter(Q(status__name='Check out') | Q(status__name='Registered')).filter(resident__status='APPROVED').filter(timedateto__gte = now())
+        someset = Visitor.objects.all().filter(
+                                            Q(name__icontains=request_query) 
+                                            | Q(resident__name__icontains=request_query)
+                                            | Q(phone__icontains=request_query) 
+                                            | Q(resident__phone__icontains=request_query)
+                                            | Q(resident__address__icontains=request_query) 
+                                            | Q(residence_area__area_name__icontains=request_query) 
+                                            | Q(resident__residence_area__area_name__icontains=request_query) 
+                                            | Q(vehicle_number__icontains=request_query) 
+                                            | Q(resident__vehicle_number__icontains=request_query) 
+                                            ).filter(Q(status__name='Check out') | Q(status__name='Registered')).filter(resident__status='APPROVED').filter(timedateto__gte = now())
         return someset
         
 
@@ -471,6 +448,7 @@ class ConnectionRequestsViewSet(viewsets.ModelViewSet):
 class ConnectionsViewSet(viewsets.ModelViewSet):
     queryset = Resident.objects.all()
     serializer_class = ResidentSerializer
+    
     def get_queryset(self):
         request_residence = self.request.query_params.get('residence', None)
         someset = Resident.objects.all().filter(residence=request_residence) 
