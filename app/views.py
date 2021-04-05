@@ -275,6 +275,7 @@ class SearchVisitorNew(viewsets.ModelViewSet):
 
     def get_queryset(self):
         request_query = self.request.query_params.get('search', None)
+        request_area = self.request.query_params.get('area', None)
         someset = Visitor.objects.all().filter(
                                             Q(name__icontains=request_query) 
                                             | Q(resident__name__icontains=request_query)
@@ -285,7 +286,7 @@ class SearchVisitorNew(viewsets.ModelViewSet):
                                             | Q(resident__residence_area__area_name__icontains=request_query) 
                                             | Q(vehicle_number__icontains=request_query) 
                                             | Q(resident__vehicle_number__icontains=request_query) 
-                                            ).filter(Q(status__name='Check out') | Q(status__name='Registered')).filter(resident__status='APPROVED').filter(timedateto__gte = now())
+                                            ).filter(residence_area__residence=request_area).filter(Q(status__name='Check out') | Q(status__name='Registered')).filter(resident__status='APPROVED').filter(Q(timedateto__gte = now()) | Q(isPermanent = True))
         return someset
         
 
@@ -414,7 +415,7 @@ class AgentByPasscodeAndArea(viewsets.ModelViewSet):
     def get_queryset(self):
         codefor = self.request.query_params.get('number', -1)
         residencefor = self.request.query_params.get('area', -1)
-        someset = AppUser.objects.all().filter(usertype=3, passcode=codefor, residence_area=residencefor)[:1]
+        someset = AppUser.objects.all().filter(usertype=3, passcode=codefor, residence=residencefor)[:1]
         return someset 
 
 
