@@ -147,11 +147,24 @@ class Residence(models.Model):
     floor = models.CharField(max_length=140, default='', null=True, blank=True)
     type = models.ForeignKey(residenceType, null=True, related_name='residence_type_from', on_delete=models.CASCADE)
     user = models.CharField(max_length=120, default='')
+    qr_code = models.ImageField(upload_to='qr_codes', blank=True)
     def __str__(self):
         return self.name
     class Meta:
         verbose_name = 'Location'
         verbose_name_plural = 'Locations'
+    def save(self, *args, **kwargs):
+        qrcode_img = qrcode.make(self.name)
+        canvas = Image.new('RGB', (370, 370), 'white')
+        draw = ImageDraw.Draw(canvas)
+        canvas.paste(qrcode_img)
+        fname = f'qr_code-{self.name}'+'.png'
+        buffer = BytesIO()
+        canvas.save(buffer, 'PNG')
+        self.qr_code.save(fname, File(buffer), save=False)
+        canvas.close()
+        super().save(*args, **kwargs)
+
 
 class residenceSyndics(models.Model):
     residence = models.ForeignKey(Residence, null=True, related_name='residence_for_syndics', on_delete=models.CASCADE)

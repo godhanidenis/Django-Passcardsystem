@@ -55,7 +55,8 @@ INSTALLED_APPS = [
     'app',
     'rest_framework',
     'corsheaders',
-    'django_crontab'
+    'django_crontab',
+    'fcm_django'
 ]
 
 MIDDLEWARE = [
@@ -69,9 +70,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+print(BASE_DIR)
+#'>> '+os.path.join(BASE_DIR,'log/debug7.log')
 CRONJOBS = [
-    ('*/2 * * * *', 'app.cron.my_cron_job')
+    ('*/1 * * * *', 'app.cron.my_scheduled_job', '>> /tmp/scheduled_job.log')
 ]
 
 ROOT_URLCONF = 'accessoneapi.urls'
@@ -91,6 +93,10 @@ TEMPLATES = [
         },
     },
 ]
+
+FCM_DJANGO_SETTINGS = {
+        "FCM_SERVER_KEY": "AAAA-K-cxJQ:APA91bF1xSQNwhB0VaDhCsCdTjA1bqyCwLGOk84MqR0boYfbVt3d5RpRbu3dBwleeG8tEPYkCxbcYvSyft-xSzzlRBSz9gLhGs0uLvxR34p6ribIYnWo4mstp0eCLuU4woiE9msr84ui"
+}
 
 WSGI_APPLICATION = 'accessoneapi.wsgi.application'
 
