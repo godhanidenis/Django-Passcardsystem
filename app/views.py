@@ -150,65 +150,52 @@ class ResidentsByEmail(viewsets.ModelViewSet):
         someset = Resident.objects.all().filter(email=request_code)[:1]
         return someset
 
-# class CheckLoginValidity(viewsets.ModelViewSet):
-#     queryset = Resident.objects.all()
-#     serializer_class = ResidentSerializer
-
-#     def get_queryset(self):
-#         push_id = self.request.query_params.get('push_id', None)
-#         someset = Resident.objects.all()
-#         print(someset)
-#         return True
-
-
 class CheckLoginValidity(APIView):
     def get(self, request):
 
-        push_id = self.request.query_params.get('push_id', None)
-        queryset = Resident.objects.all().filter(push_id=push_id).first()
+        passcode = self.request.query_params.get('passcode', None)
+        queryset = Resident.objects.all().filter(passcode=passcode).first()
+        print(queryset)
         rule_string = queryset.recurrance_str
-
         isValid = False
-        dtstart = ''
-        str_without_dtstart = ''
-        rule_string_perameters = rule_string.split(";")
+        print(rule_string)
+        if rule_string:
+            dtstart = ''
+            str_without_dtstart = ''
+            rule_string_perameters = rule_string.split(";")
 
-        for pera in rule_string_perameters:
-            if pera.split("=")[0] == 'DTSTART':
-                dtstart = pera.split("=")[1]
-                rule_string_perameters.remove(pera)
+            for pera in rule_string_perameters:
+                if pera.split("=")[0] == 'DTSTART':
+                    dtstart = pera.split("=")[1]
+                    rule_string_perameters.remove(pera)
 
-        
-        if dtstart != '':
-            final_rule_string = "DTSTART:" + dtstart + ";\n" + "RRULE:" + ";".join(rule_string_perameters)
-            rule = rrulestr(final_rule_string)
-            launchTime = datetime.now(tz=timezone.utc)
-            next_occurance = rule.after(launchTime, inc=True)
-        else:
-            final_rule_string =  "RRULE:" + ";".join(rule_string_perameters)
-            rule = rrulestr(final_rule_string)
-            launchTime = datetime.utcnow()
-            next_occurance = rule.after(launchTime, inc=True)
-
-        # print("final_rule_string : " + final_rule_string)
-        # print("rule :")
-        # print(rule)
-        
-
-        # print("next_occurance :")
-        # print(next_occurance)
-
-        if next_occurance.strftime("%d/%m/%Y") == datetime.now(tz=timezone.utc).strftime("%d/%m/%Y"):
-            if queryset.time_from and queryset.time_to:
-                begin_time = datetime.time(queryset.time_from)
-                end_time   = datetime.time(queryset.time_to)
-                check_time = datetime.utcnow().time()
-                if begin_time < end_time:
-                    isValid =  check_time >= begin_time and check_time <= end_time
-                else: # crosses midnight
-                    isValid =  check_time >= begin_time or check_time <= end_time
+            if dtstart != '':
+                final_rule_string = "DTSTART:" + dtstart + ";\n" + "RRULE:" + ";".join(rule_string_perameters)
+                rule = rrulestr(final_rule_string)
+                launchTime = datetime.now(tz=timezone.utc)
+                next_occurance = rule.after(launchTime, inc=True)
             else:
-                isValid = True
+                final_rule_string =  "RRULE:" + ";".join(rule_string_perameters)
+                rule = rrulestr(final_rule_string)
+                launchTime = datetime.utcnow()
+                next_occurance = rule.after(launchTime, inc=True)
+
+            print(next_occurance.strftime("%d/%m/%Y"))
+            print(datetime.now(tz=timezone.utc).strftime("%d/%m/%Y"))
+
+            if next_occurance.strftime("%d/%m/%Y") == datetime.now(tz=timezone.utc).strftime("%d/%m/%Y"):
+                if queryset.time_from and queryset.time_to:
+                    begin_time = datetime.time(queryset.time_from)
+                    end_time   = datetime.time(queryset.time_to)
+                    check_time = datetime.utcnow().time()
+                    if begin_time < end_time:
+                        isValid =  check_time >= begin_time and check_time <= end_time
+                    else: # crosses midnight
+                        isValid =  check_time >= begin_time or check_time <= end_time
+                else:
+                    isValid = True
+        else:
+            isValid = True
 
         return Response({'isValid': isValid})
 
@@ -289,9 +276,6 @@ class SearchVisitorNew(viewsets.ModelViewSet):
                                             ).filter(residence_area__residence=request_area).filter(Q(status__name='Check out') | Q(status__name='Registered')).filter(resident__status='APPROVED').filter(Q(timedateto__gte = now()) | Q(isPermanent = True))
         return someset
         
-
-
-
 class SearchVisitor(generics.ListCreateAPIView):
     search_fields = ['name']
     filter_backends = (filters.SearchFilter,)
@@ -455,8 +439,6 @@ class ConnectionsViewSet(viewsets.ModelViewSet):
         someset = Resident.objects.all().filter(residence=request_residence) 
         return someset
         
-
-
 class visitorValidityViewSet(viewsets.ModelViewSet):
     queryset = visitorValidity.objects.all()
     serializer_class = visitorValiditySerializer
